@@ -38,7 +38,7 @@ d3.csv("cereal.csv", function(data) {
 
 d3.tsv("snpdata.tsv", function(error, data) {
   data.forEach(function(d) {
-    d.bp = +d.BP;
+    d.snp = +d.SNP;
     d.ch = +d.CHR;
 	d.id = +d.POS;
 	d.p = +d.P;
@@ -58,23 +58,21 @@ d3.tsv("snpdata.tsv", function(error, data) {
 
   var xAxis = d3.svg.axis()
       .scale(x)
-      .orient("bottom")
-      .ticks(5); 
-      /*.tickSize(-height);*/
+      .orient("top")
+      .tickSize(-height);
 
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left")
       .tickSize(-width);
-  xAxis.tickValues([10000000, 20000000, 30000000]);
-  //.tickValues(d3.range(1000000, 2000000, 4));
+
   var color = d3.scale.category10();
 
   var tip = d3.tip()
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return  "Chromosome : "+d.ch + "<br>Chr Pos:" + d.bp + "<br>" + yCat + ": " + d.logp ;
+        return xCat + ": " + d[xCat] + "<br>" + yCat + ": " + d.logp;
       });
 
   var zoomBeh = d3.behavior.zoom()
@@ -97,7 +95,6 @@ d3.tsv("snpdata.tsv", function(error, data) {
       .attr("width", width)
       .attr("height", height);
 
-/*	
   svg.append("g")
       .classed("x axis", true)
       .attr("transform", "translate(0," + height + ")")
@@ -109,28 +106,6 @@ d3.tsv("snpdata.tsv", function(error, data) {
       .style("text-anchor", "end")
       .text("Chromosomes");
 
-	
-  svg.append("g")
-	        .attr("class", "x axis")
-	        .attr("transform", "translate(0," + height + ")")
-	        .call(xAxis)
-	        .selectAll("text")  
-	            .style("text-anchor", "end")
-	            .attr("dx", "-.8em")
-	            .attr("dy", ".15em")
-		    .attr("transform", "rotate(-90)" );
-		    
-
-svg.append("g")
-	                .attr("class", "x axis")
-	                .attr("transform", "translate(0," + height + ")")
-	                .call(xAxis)
-	                .selectAll("text")
-	                 .style("text-anchor", "end")
-	                    .attr("dx", "-.8em")
-	                    .attr("dy", ".15em")
-	                    .attr("transform", "rotate(-90)" )
-*/
   svg.append("g")
       .classed("y axis", true)
       .call(yAxis)
@@ -163,17 +138,6 @@ svg.append("g")
       .attr("y2", height);
 
   objects.selectAll(".dot")
-       .data(data)
-       .enter().append("circle")
-       .classed("dot", true)
-       .attr("r", 3.5)
-       .attr("transform", transform)
-       .style("fill", function(d) { return color(d[colorCat]); })
-       .on("mouseover", tip.show)
-       .on("mouseout", tip.hide);
-
-/*	
-  objects.selectAll(".dot")
       .data(data)
     .enter().append("circle")
       .classed("dot", true)
@@ -182,7 +146,7 @@ svg.append("g")
       .style("fill", function(d) { return color(d[colorCat]); })
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide);
-*/
+
   svg.append("text")
         .attr("x", (width / 2))             
         .attr("y", 0 - (margin.top / 2))
