@@ -36,13 +36,16 @@ d3.csv("cereal.csv", function(data) {
 */
 
 
-d3.tsv("snpdata.tsv", function(error, data) {
+d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
   data.forEach(function(d) {
     d.bp = +d.BP;
-    d.ch = +d.CHR;
-	d.id = +d.POS;
-	d.p = +d.P;
-	d.logp = -Math.log(d.p);
+    d["chr"] = +d["CHR"];
+    // alert(d.CHR);	
+    // alert(d.chr);	  
+    d.id = +d.POS;
+    //alert(d.id);	  
+    d.p = +d.P;
+    d.logp = -Math.log(d.p);
   });
 
 
@@ -59,14 +62,13 @@ d3.tsv("snpdata.tsv", function(error, data) {
   var xAxis = d3.svg.axis()
       .scale(x)
       .orient("bottom")
-      .ticks(5); 
-      /*.tickSize(-height);*/
+      .tickSize(-height);
 
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left")
       .tickSize(-width);
-  xAxis.tickValues([10000000, 20000000, 30000000]);
+  //xAxis.tickValues([10000000, 20000000, 30000000]);
   //.tickValues(d3.range(1000000, 2000000, 4));
   var color = d3.scale.category10();
 
@@ -74,7 +76,7 @@ d3.tsv("snpdata.tsv", function(error, data) {
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return  "Chromosome : "+d.ch + "<br>Chr Pos:" + d.bp + "<br>" + yCat + ": " + d.logp ;
+        return  "Chromosome : "+ d["chr"] + "<br>Chr Pos:" + d.bp + "<br>" + yCat + ": " + d.logp ;
       });
 
   var zoomBeh = d3.behavior.zoom()
@@ -190,7 +192,7 @@ svg.append("g")
         .style("font-size", "16px") 
         .style("text-decoration", "underline")  
         .text("Manhattan Plot");
-  
+/*  
   var legend = svg.selectAll(".legend")
       .data(color.domain())
     .enter().append("g")
@@ -205,7 +207,8 @@ svg.append("g")
   legend.append("text")
       .attr("x", width + 26)
       .attr("dy", ".35em")
-      .text(function(d) { return "chr"+ d; });
+      .text(function(d) { return  d; });
+*/
 
   function zoom() {
     svg.select(".x.axis").call(xAxis);
