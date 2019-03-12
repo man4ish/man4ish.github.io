@@ -39,7 +39,7 @@ d3.csv("cereal.csv", function(data) {
 d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
   data.forEach(function(d) {
     d.bp = +d.BP;
-    d["chr"] = +d["CHR"];
+    d["chr"] = d["CHR"];
     // alert(d.CHR);	
     // alert(d.chr);	  
     d.id = +d.POS;
