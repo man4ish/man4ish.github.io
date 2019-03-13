@@ -45,16 +45,17 @@ d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
     d.id = +d.POS;
     //alert(d.id);	  
     d.p = +d.P;
-    d.logp = -Math.log(d.p);
+    d.logp = -Math.log10(d.p);
   });
 
 
-  var xMax = d3.max(data, function(d) { return d[xCat]; }) * 1.05,
-      xMin = d3.min(data, function(d) { return d[xCat]; }),
+  var xMax = d3.max(data, function(d) { return d.id; }) * 1.05,
+      xMin = d3.min(data, function(d) { return d.id; }),
       xMin = xMin > 0 ? 0 : xMin,
       yMax = d3.max(data, function(d) { return d.logp; }) * 1.05,
       yMin = d3.min(data, function(d) { return d.logp; }),
       yMin = yMin > 0 ? 0 : yMin;
+
 
   x.domain([xMin, xMax]);
   y.domain([yMin, yMax]);
