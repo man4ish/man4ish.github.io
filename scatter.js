@@ -5,7 +5,7 @@ var margin = { top: 50, right: 300, bottom: 50, left: 50 },
     height = outerHeight - margin.top - margin.bottom;
     width = 960 - margin.left - margin.right,
     height = 400 - margin.top - margin.bottom;
- 
+
 var x = d3.scale.linear()
     .range([0, width]).nice();
 
@@ -36,16 +36,19 @@ d3.csv("cereal.csv", function(data) {
 */
 
 
-d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
+d3.tsv("newsnpdata.tsv", function(error, data) {
   data.forEach(function(d) {
     d.bp = +d.BP;
     d["chr"] = d["CHR"];
-    // alert(d.CHR);	
-    // alert(d.chr);	  
+    // alert(d.CHR);
+    // alert(d.chr);
     d.id = +d.POS;
-    //alert(d.id);	  
+    //alert(d.id);
     d.p = +d.P;
     d.logp = -Math.log10(d.p);
+    d["gene"] = d["GENEID"];
+    d["neighborgene"] = d["NEIGHBORGENE"];
+    d["genefunction"] = d["FUNCTION"];
   });
 
 
@@ -73,11 +76,56 @@ d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
   //.tickValues(d3.range(1000000, 2000000, 4));
   var color = d3.scale.category10();
 
+  function wrap(text, width) {
+    text.each(function () {
+        var text = d3.select(this),
+            words = text.text().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y"),
+            dy = parseFloat(text.attr("dy")),
+            tspan = text.text(null).append("tspan")
+                .attr("x", 0)
+                .attr("y", y)
+                .attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan")
+                    .attr("x", 0)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
+            }
+        }
+    });
+  }
+
   var tip = d3.tip()
       .attr("class", "d3-tip")
       .offset([-10, 0])
       .html(function(d) {
-        return  "Chromosome : "+ d["chr"] + "<br>Chr Pos:" + d.bp + "<br>" + yCat + ": " + d.logp ;
+        tooltiphtml = "Chromosome : "+ d["chr"] + "<br/>";
+        tooltiphtml += "Chr Pos:" + d.bp + "<br/>";
+        tooltiphtml += yCat + ": " + d.logp;
+
+        if(d.gene != NaN && d.gene != "NA") {
+          tooltiphtml += '<br/><span style="color: #00ff2a;">GENE: '+d.gene+'</span>';
+        } else if(d.neighborgene != NaN && d.neighborgene != "NA") {
+          tooltiphtml += '<br/><span style="color: #00ff2a;">NEAREST GENE: '+d.neighborgene+'</span>';
+        }
+
+        if (d.genefunction != NaN && d.genefunction != "NA") {
+          tooltiphtml += '<p style="width: 300px;margin:0;padding:0;color: #ff0061;word-wrap: break-word;">GENE FUNCTION:<br/>'+d.genefunction+'</p>';
+        }
+
+        return tooltiphtml
       });
 
   var zoomBeh = d3.behavior.zoom()
@@ -100,7 +148,7 @@ d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
       .attr("width", width)
       .attr("height", height);
 
-/*	
+/*
   svg.append("g")
       .classed("x axis", true)
       .attr("transform", "translate(0," + height + ")")
@@ -112,17 +160,17 @@ d3.tsv("gwas_Result_for_plot_2.txt", function(error, data) {
       .style("text-anchor", "end")
       .text("Chromosomes");
 
-	
+
   svg.append("g")
 	        .attr("class", "x axis")
 	        .attr("transform", "translate(0," + height + ")")
 	        .call(xAxis)
-	        .selectAll("text")  
+	        .selectAll("text")
 	            .style("text-anchor", "end")
 	            .attr("dx", "-.8em")
 	            .attr("dy", ".15em")
 		    .attr("transform", "rotate(-90)" );
-		    
+
 
 svg.append("g")
 	                .attr("class", "x axis")
@@ -175,7 +223,7 @@ svg.append("g")
        .on("mouseover", tip.show)
        .on("mouseout", tip.hide);
 
-/*	
+/*
   objects.selectAll(".dot")
       .data(data)
     .enter().append("circle")
@@ -187,13 +235,13 @@ svg.append("g")
       .on("mouseout", tip.hide);
 */
   svg.append("text")
-        .attr("x", (width / 2))             
+        .attr("x", (width / 2))
         .attr("y", 0 - (margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("text-decoration", "underline")
         .text("Manhattan Plot");
-/*  
+/*
   var legend = svg.selectAll(".legend")
       .data(color.domain())
     .enter().append("g")
